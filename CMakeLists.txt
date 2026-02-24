@@ -44,6 +44,7 @@ find_package(FLEX REQUIRED)
 add_subdirectory(source/utils)
 add_subdirectory(source/args)
 add_subdirectory(source/lexer)
+add_subdirectory(source/syntaxer)
 
 add_executable(SLRParser source/main.cpp)
 
@@ -59,4 +60,5 @@ target_link_libraries(SLRParser PRIVATE
     utils
     args
     lexer
+    syntaxer
 )

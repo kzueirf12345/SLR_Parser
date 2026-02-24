@@ -3,16 +3,17 @@
 namespace slr {
 namespace lexer {
 
-enum class TokenType {
+enum class TokenType: int {
     END_OF_FILE = 0,
     NUMBER,
     PLUS,
     MINUS,
     MUL,
     DIV,
-    LBRAKET,
-    RBRAKET,
-    UNKNOWN
+    LBRACKET,
+    RBRACKET,
+    UNKNOWN,
+    COUNT
 };
 
 struct Token {

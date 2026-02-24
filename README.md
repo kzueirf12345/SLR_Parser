@@ -53,3 +53,33 @@ cmake --build build -j$(nproc)
 # Запуск
 ./build/SLRParser
 ```
+
+## Грамматика
+Основаная грамматика
+
+```bnf
+<start>     ::= <sum>
+
+<sum>       ::= <sum> "+" <mul> | <sum> "-" <mul> | <mul>
+
+<mul>       ::= <mul> "*" <brakets> | <mul> "/" <brakets> | <brakets>
+
+<brakets>   ::= "(" <sum> ")" | NUM
+```
+
+Развёрнутая форма
+
+```bnf
+<start>     ::=* <sum>
+
+<sum>       ::=* <sum> "+" <mul> 
+<sum>       ::=* <sum> "-" <mul>
+<sum>       ::=* <mul>
+
+<mul>       ::=* <mul> "*" <brakets>
+<mul>       ::=* <mul> "/" <brakets>
+<mul>       ::=* <brakets>
+
+<brakets>   ::=* "(" <sum> ")"
+<brakets>   ::=* NUM
+```

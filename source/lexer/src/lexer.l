@@ -23,8 +23,8 @@
 "-"     { return static_cast<int>(slr::lexer::TokenType::MINUS); }
 "*"     { return static_cast<int>(slr::lexer::TokenType::MUL); }
 "/"     { return static_cast<int>(slr::lexer::TokenType::DIV); }
-"("     { return static_cast<int>(slr::lexer::TokenType::LBRAKET); }
-")"     { return static_cast<int>(slr::lexer::TokenType::RBRAKET); }
+"("     { return static_cast<int>(slr::lexer::TokenType::LBRACKET); }
+")"     { return static_cast<int>(slr::lexer::TokenType::RBRACKET); }
 
 [ \t\n]+ { /* игнорируем пробелы */ }
 
