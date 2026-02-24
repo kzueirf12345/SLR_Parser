@@ -13,6 +13,7 @@ enum class Symbol : int {
     // TokenType + offset
     END_OF_FILE = 0,
     NUMBER,
+    ID,
     PLUS,
     MINUS,
     MUL,
@@ -46,6 +47,7 @@ public:
     std::string                     productionString(size_t prod_ind) const { return productions_[prod_ind].name; }
     
     const std::unordered_set<Symbol>& getFollow(Symbol non_terminal) const;
+    const std::unordered_set<Symbol>& getFirst(Symbol symbol) const;
     
     static bool isNonTerminal(Symbol s);
     static bool isTerminal(Symbol s);

@@ -19,6 +19,11 @@
     return static_cast<int>(slr::lexer::TokenType::NUMBER); 
 }
 
+[a-zA-Z_][a-zA-Z0-9_]* {
+    last_value_ = yytext;
+    return static_cast<int>(slr::lexer::TokenType::ID);
+}
+
 "+"     { return static_cast<int>(slr::lexer::TokenType::PLUS); }
 "-"     { return static_cast<int>(slr::lexer::TokenType::MINUS); }
 "*"     { return static_cast<int>(slr::lexer::TokenType::MUL); }
@@ -29,9 +34,9 @@
 [ \t\n]+ { /* игнорируем пробелы */ }
 
 .       {   
-            std::cerr << "Lexical error at line " << yylineno 
-                << ": unexpected character '" << yytext << "'" << std::endl;
-            return static_cast<int>(slr::lexer::TokenType::UNKNOWN); 
-        }
+    std::cerr << "Lexical error at line " << yylineno 
+        << ": unexpected character '" << yytext << "'" << std::endl;
+    return static_cast<int>(slr::lexer::TokenType::UNKNOWN); 
+}
 
 %%

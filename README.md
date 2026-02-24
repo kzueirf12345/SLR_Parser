@@ -64,7 +64,7 @@ cmake --build build -j$(nproc)
 
 <mul>       ::= <mul> "*" <brakets> | <mul> "/" <brakets> | <brakets>
 
-<brakets>   ::= "(" <sum> ")" | NUM
+<brakets>   ::= "(" <sum> ")" | NUM | ID
 ```
 
 Развёрнутая форма
@@ -82,4 +82,5 @@ cmake --build build -j$(nproc)
 
 <brakets>   ::=* "(" <sum> ")"
 <brakets>   ::=* NUM
+<brakets>   ::=* ID
 ```

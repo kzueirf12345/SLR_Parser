@@ -7,15 +7,16 @@ namespace slr::syntaxer {
 Grammar::Grammar() {
     
     productions_ = {
-        {Symbol::NT_START,  {Symbol::NT_SUM},                                   "<start> -> <sum>"},
-        {Symbol::NT_SUM,    {Symbol::NT_SUM, Symbol::PLUS, Symbol::NT_MUL},     "<sum> -> <sum> '+' <mul>"},
-        {Symbol::NT_SUM,    {Symbol::NT_SUM, Symbol::MINUS, Symbol::NT_MUL},    "<sum> -> <sum> '-' <mul>"},
-        {Symbol::NT_SUM,    {Symbol::NT_MUL},                                   "<sum> -> <mul>"},
-        {Symbol::NT_MUL,    {Symbol::NT_MUL, Symbol::MUL, Symbol::NT_BRAKETS},  "<mul> -> <mul> '*' <brakets>"},
-        {Symbol::NT_MUL,    {Symbol::NT_MUL, Symbol::DIV, Symbol::NT_BRAKETS},  "<mul> -> <mul> '/' <brakets>"},
-        {Symbol::NT_MUL,    {Symbol::NT_BRAKETS},                               "<mul> -> <brakets>"},
-        {Symbol::NT_BRAKETS,{Symbol::LBRACKET, Symbol::NT_SUM, Symbol::RBRACKET}, "<brakets> -> '(' <sum> ')'"},
-        {Symbol::NT_BRAKETS,{Symbol::NUMBER}, "<brakets> -> NUM"},
+        {Symbol::NT_START,  {Symbol::NT_SUM},                                       "<start> -> <sum>"},
+        {Symbol::NT_SUM,    {Symbol::NT_SUM, Symbol::PLUS, Symbol::NT_MUL},         "<sum> -> <sum> '+' <mul>"},
+        {Symbol::NT_SUM,    {Symbol::NT_SUM, Symbol::MINUS, Symbol::NT_MUL},        "<sum> -> <sum> '-' <mul>"},
+        {Symbol::NT_SUM,    {Symbol::NT_MUL},                                       "<sum> -> <mul>"},
+        {Symbol::NT_MUL,    {Symbol::NT_MUL, Symbol::MUL, Symbol::NT_BRAKETS},      "<mul> -> <mul> '*' <brakets>"},
+        {Symbol::NT_MUL,    {Symbol::NT_MUL, Symbol::DIV, Symbol::NT_BRAKETS},      "<mul> -> <mul> '/' <brakets>"},
+        {Symbol::NT_MUL,    {Symbol::NT_BRAKETS},                                   "<mul> -> <brakets>"},
+        {Symbol::NT_BRAKETS,{Symbol::LBRACKET, Symbol::NT_SUM, Symbol::RBRACKET},   "<brakets> -> '(' <sum> ')'"},
+        {Symbol::NT_BRAKETS,{Symbol::NUMBER},                                       "<brakets> -> NUM"},
+        {Symbol::NT_BRAKETS,{Symbol::ID},                                           "<brakets> -> ID"},
     };
     
     buildFirstSets();
@@ -96,6 +97,9 @@ void Grammar::buildFirstSets() {
 const std::unordered_set<Symbol>& Grammar::getFollow(Symbol non_terminal) const {
     return follow_sets_[static_cast<size_t>(non_terminal)];
 }
+const std::unordered_set<Symbol>& Grammar::getFirst(Symbol symbol) const {
+    return first_sets_[static_cast<size_t>(symbol)];
+}
 
 bool Grammar::isNonTerminal(Symbol s) {
     return s >= Symbol::NT_START && s < Symbol::COUNT;
@@ -118,6 +122,7 @@ std::string Grammar::symbolName(Symbol s) {
     switch(s) {
         CASE_RET_STR(END_OF_FILE, "EOF")
         CASE_RET_STR(NUMBER, "NUM")
+        CASE_RET_STR(ID, "ID")
         CASE_RET_STR(PLUS, "+")
         CASE_RET_STR(MINUS, "-")
         CASE_RET_STR(MUL, "*")

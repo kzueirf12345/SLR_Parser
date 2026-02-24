@@ -6,6 +6,7 @@ namespace lexer {
 enum class TokenType: int {
     END_OF_FILE = 0,
     NUMBER,
+    ID,
     PLUS,
     MINUS,
     MUL,
