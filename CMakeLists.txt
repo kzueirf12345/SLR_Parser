@@ -35,9 +35,14 @@ if(SANITIZE AND NOT MSVC)
     )
 endif()
 
+###===========================================FLEX==================================================
+
+find_package(FLEX REQUIRED)
+
 ###===========================================SUBDIRECTORY==========================================
 
 add_subdirectory(source/utils)
+add_subdirectory(source/parser)
 
 add_executable(SLRParser source/main.cpp)
 
@@ -51,4 +56,5 @@ endif()
 
 target_link_libraries(SLRParser PRIVATE
     utils
+    parser
 )
