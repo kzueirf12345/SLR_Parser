@@ -42,7 +42,8 @@ find_package(FLEX REQUIRED)
 ###===========================================SUBDIRECTORY==========================================
 
 add_subdirectory(source/utils)
-add_subdirectory(source/parser)
+add_subdirectory(source/args)
+add_subdirectory(source/lexer)
 
 add_executable(SLRParser source/main.cpp)
 
@@ -56,5 +57,6 @@ endif()
 
 target_link_libraries(SLRParser PRIVATE
     utils
-    parser
+    args
+    lexer
 )

@@ -1,6 +1,6 @@
-add_library(parser STATIC)
+add_library(lexer STATIC)
 
-target_include_directories(parser
+target_include_directories(lexer
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
@@ -9,18 +9,16 @@ target_include_directories(parser
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(parser PRIVATE project_warnings)
+target_link_libraries(lexer PRIVATE project_warnings)
 if(TARGET project_sanitizers)
-    target_link_libraries(parser PRIVATE project_sanitizers)
+    target_link_libraries(lexer PRIVATE project_sanitizers)
 endif()
 
-set_target_properties(parser PROPERTIES
+set_target_properties(lexer PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-# ==========================================
-# FLEX CONFIGURATION
-# ==========================================
+#===============================================FLEX================================================
 
 FLEX_TARGET(Lexer 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lexer.l 
@@ -28,12 +26,7 @@ FLEX_TARGET(Lexer
     COMPILE_FLAGS "--c++"
 )
 
-target_sources(parser
-    PRIVATE
-        ${FLEX_Lexer_OUTPUTS}
-)
-
-target_sources(parser
+target_sources(lexer
     PRIVATE
         ${FLEX_Lexer_OUTPUTS}
 )

@@ -1,5 +1,8 @@
 #pragma once
 
+namespace slr {
+namespace lexer {
+
 enum class TokenType {
     END_OF_FILE = 0,
     NUMBER,
@@ -17,3 +20,6 @@ struct Token {
     double value;
     int line;
 };
+
+}
+}
