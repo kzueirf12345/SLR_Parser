@@ -1,0 +1,113 @@
+
+=== Grammar Info ===
+
+=== FIRST Sets ===
+FIRST(UNKNOWN) = { }
+FIRST(END_OF_FILE) = { 'END_OF_FILE' }
+FIRST(NUMBER) = { 'NUMBER' }
+FIRST(ID) = { 'ID' }
+FIRST(PLUS) = { 'PLUS' }
+FIRST(MINUS) = { 'MINUS' }
+FIRST(MUL) = { 'MUL' }
+FIRST(DIV) = { 'DIV' }
+FIRST(LBRACKET) = { 'LBRACKET' }
+FIRST(RBRACKET) = { 'RBRACKET' }
+FIRST(NT_START) = { 'LBRACKET' 'NUMBER' 'ID' }
+FIRST(NT_SUM) = { 'ID' 'NUMBER' 'LBRACKET' }
+FIRST(NT_MUL) = { 'LBRACKET' 'NUMBER' 'ID' }
+FIRST(NT_BRAKETS) = { 'ID' 'NUMBER' 'LBRACKET' }
+
+=== FOLLOW Sets ===
+FOLLOW(UNKNOWN) = { }
+FOLLOW(END_OF_FILE) = { }
+FOLLOW(NUMBER) = { }
+FOLLOW(ID) = { }
+FOLLOW(PLUS) = { }
+FOLLOW(MINUS) = { }
+FOLLOW(MUL) = { }
+FOLLOW(DIV) = { }
+FOLLOW(LBRACKET) = { }
+FOLLOW(RBRACKET) = { }
+FOLLOW(NT_START) = { END_OF_FILE }
+FOLLOW(NT_SUM) = { RBRACKET MINUS PLUS END_OF_FILE }
+FOLLOW(NT_MUL) = { RBRACKET DIV MUL MINUS END_OF_FILE PLUS }
+FOLLOW(NT_BRAKETS) = { RBRACKET DIV PLUS END_OF_FILE MINUS MUL }
+
+
+=== SLR Parsing Table ===
+States: 17
+
+===ACTION table===
+          State    END_OF_FILE         NUMBER             ID           PLUS          MINUS            MUL            DIV       LBRACKET       RBRACKET
+----------------------------------------------------------------------------------------------------
+              0              -             s1             s2              -              -              -              -             s3              -
+              1             r8              -              -             r8             r8             r8             r8              -             r8
+              2             r9              -              -             r9             r9             r9             r9              -             r9
+              3              -             s1             s2              -              -              -              -             s3              -
+              4            acc              -              -             s8             s9              -              -              -              -
+              5             r3              -              -             r3             r3            s10            s11              -             r3
+              6             r6              -              -             r6             r6             r6             r6              -             r6
+              7              -              -              -             s8             s9              -              -              -            s12
+              8              -             s1             s2              -              -              -              -             s3              -
+              9              -             s1             s2              -              -              -              -             s3              -
+             10              -             s1             s2              -              -              -              -             s3              -
+             11              -             s1             s2              -              -              -              -             s3              -
+             12             r7              -              -             r7             r7             r7             r7              -             r7
+             13             r1              -              -             r1             r1            s10            s11              -             r1
+             14             r2              -              -             r2             r2            s10            s11              -             r2
+             15             r4              -              -             r4             r4             r4             r4              -             r4
+             16             r5              -              -             r5             r5             r5             r5              -             r5
+
+===GOTO table===
+          State       NT_START         NT_SUM         NT_MUL     NT_BRAKETS
+----------------------------------------------------------------------------------------------------
+              0              -              4              5              6
+              1              -              -              -              -
+              2              -              -              -              -
+              3              -              7              5              6
+              4              -              -              -              -
+              5              -              -              -              -
+              6              -              -              -              -
+              7              -              -              -              -
+              8              -              -             13              6
+              9              -              -             14              6
+             10              -              -              -             15
+             11              -              -              -             16
+             12              -              -              -              -
+             13              -              -              -              -
+             14              -              -              -              -
+             15              -              -              -              -
+             16              -              -              -              -
+
+=== Lexer ===
+TYPE                          VALUE
+------------------------------
+ID                            a
+PLUS                          +
+ID                            b
+MUL                           *
+ID                            c
+END_OF_FILE                   $
+------------------------------
+Total tokens: 6
+
+===Syntaxer result===
+Result: SUCCESSFULLY
+
+Ind  STACK                                             INPUT                                             ACTION
+------------------------------------------------------------------------------------------------------------------------------------------------------
+0    $                                                 a + b * c $                                       shift 2
+1    $ID                                               + b * c $                                         reduce <brakets> -> ID
+2    $                                                 + b * c $                                         reduce <mul> -> <brakets>
+3    $                                                 + b * c $                                         reduce <sum> -> <mul>
+4    $                                                 + b * c $                                         shift 8
+5    $+                                                b * c $                                           shift 2
+6    $+ID                                              * c $                                             reduce <brakets> -> ID
+7    $+                                                * c $                                             reduce <mul> -> <brakets>
+8    $+                                                * c $                                             shift 10
+9    $+*                                               c $                                               shift 2
+10   $+*ID                                             $                                                 reduce <brakets> -> ID
+11   $+*                                               $                                                 reduce <mul> -> <mul> '*' <brakets>
+12   $+                                                $                                                 reduce <sum> -> <sum> '+' <mul>
+13   $                                                 $                                                 accept
+------------------------------------------------------------------------------------------------------------------------------------------------------

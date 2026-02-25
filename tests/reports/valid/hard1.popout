@@ -1,0 +1,200 @@
+
+=== Grammar Info ===
+
+=== FIRST Sets ===
+FIRST(UNKNOWN) = { }
+FIRST(END_OF_FILE) = { 'END_OF_FILE' }
+FIRST(NUMBER) = { 'NUMBER' }
+FIRST(ID) = { 'ID' }
+FIRST(PLUS) = { 'PLUS' }
+FIRST(MINUS) = { 'MINUS' }
+FIRST(MUL) = { 'MUL' }
+FIRST(DIV) = { 'DIV' }
+FIRST(LBRACKET) = { 'LBRACKET' }
+FIRST(RBRACKET) = { 'RBRACKET' }
+FIRST(NT_START) = { 'LBRACKET' 'NUMBER' 'ID' }
+FIRST(NT_SUM) = { 'ID' 'NUMBER' 'LBRACKET' }
+FIRST(NT_MUL) = { 'LBRACKET' 'NUMBER' 'ID' }
+FIRST(NT_BRAKETS) = { 'ID' 'NUMBER' 'LBRACKET' }
+
+=== FOLLOW Sets ===
+FOLLOW(UNKNOWN) = { }
+FOLLOW(END_OF_FILE) = { }
+FOLLOW(NUMBER) = { }
+FOLLOW(ID) = { }
+FOLLOW(PLUS) = { }
+FOLLOW(MINUS) = { }
+FOLLOW(MUL) = { }
+FOLLOW(DIV) = { }
+FOLLOW(LBRACKET) = { }
+FOLLOW(RBRACKET) = { }
+FOLLOW(NT_START) = { END_OF_FILE }
+FOLLOW(NT_SUM) = { RBRACKET MINUS PLUS END_OF_FILE }
+FOLLOW(NT_MUL) = { RBRACKET DIV MUL MINUS END_OF_FILE PLUS }
+FOLLOW(NT_BRAKETS) = { RBRACKET DIV PLUS END_OF_FILE MINUS MUL }
+
+
+=== SLR Parsing Table ===
+States: 17
+
+===ACTION table===
+          State    END_OF_FILE         NUMBER             ID           PLUS          MINUS            MUL            DIV       LBRACKET       RBRACKET
+----------------------------------------------------------------------------------------------------
+              0              -             s1             s2              -              -              -              -             s3              -
+              1             r8              -              -             r8             r8             r8             r8              -             r8
+              2             r9              -              -             r9             r9             r9             r9              -             r9
+              3              -             s1             s2              -              -              -              -             s3              -
+              4            acc              -              -             s8             s9              -              -              -              -
+              5             r3              -              -             r3             r3            s10            s11              -             r3
+              6             r6              -              -             r6             r6             r6             r6              -             r6
+              7              -              -              -             s8             s9              -              -              -            s12
+              8              -             s1             s2              -              -              -              -             s3              -
+              9              -             s1             s2              -              -              -              -             s3              -
+             10              -             s1             s2              -              -              -              -             s3              -
+             11              -             s1             s2              -              -              -              -             s3              -
+             12             r7              -              -             r7             r7             r7             r7              -             r7
+             13             r1              -              -             r1             r1            s10            s11              -             r1
+             14             r2              -              -             r2             r2            s10            s11              -             r2
+             15             r4              -              -             r4             r4             r4             r4              -             r4
+             16             r5              -              -             r5             r5             r5             r5              -             r5
+
+===GOTO table===
+          State       NT_START         NT_SUM         NT_MUL     NT_BRAKETS
+----------------------------------------------------------------------------------------------------
+              0              -              4              5              6
+              1              -              -              -              -
+              2              -              -              -              -
+              3              -              7              5              6
+              4              -              -              -              -
+              5              -              -              -              -
+              6              -              -              -              -
+              7              -              -              -              -
+              8              -              -             13              6
+              9              -              -             14              6
+             10              -              -              -             15
+             11              -              -              -             16
+             12              -              -              -              -
+             13              -              -              -              -
+             14              -              -              -              -
+             15              -              -              -              -
+             16              -              -              -              -
+
+=== Lexer ===
+TYPE                          VALUE
+------------------------------
+LBRACKET                      (
+LBRACKET                      (
+ID                            a
+PLUS                          +
+ID                            b
+RBRACKET                      )
+MUL                           *
+ID                            c
+MINUS                         -
+ID                            d
+DIV                           /
+LBRACKET                      (
+ID                            e
+PLUS                          +
+ID                            f
+MUL                           *
+ID                            g
+RBRACKET                      )
+RBRACKET                      )
+PLUS                          +
+ID                            h
+MUL                           *
+LBRACKET                      (
+ID                            i
+MINUS                         -
+ID                            j
+DIV                           /
+ID                            k
+RBRACKET                      )
+PLUS                          +
+ID                            l
+END_OF_FILE                   $
+------------------------------
+Total tokens: 32
+
+===Syntaxer result===
+Result: SUCCESSFULLY
+
+Ind  STACK                                             INPUT                                             ACTION
+------------------------------------------------------------------------------------------------------------------------------------------------------
+0    $                                                 ( ( a + b ) * c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ shift 3
+1    $(                                                ( a + b ) * c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ shift 3
+2    $((                                               a + b ) * c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ shift 2
+3    $((ID                                             + b ) * c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ reduce <brakets> -> ID
+4    $((                                               + b ) * c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ reduce <mul> -> <brakets>
+5    $((                                               + b ) * c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ reduce <sum> -> <mul>
+6    $((                                               + b ) * c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ shift 8
+7    $((+                                              b ) * c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ shift 2
+8    $((+ID                                            ) * c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ reduce <brakets> -> ID
+9    $((+                                              ) * c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ reduce <mul> -> <brakets>
+10   $((+                                              ) * c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ reduce <sum> -> <sum> '+' <mul>
+11   $((                                               ) * c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ shift 12
+12   $(()                                              * c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ reduce <brakets> -> '(' <sum> ')'
+13   $(                                                * c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ reduce <mul> -> <brakets>
+14   $(                                                * c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ shift 10
+15   $(*                                               c - d / ( e + f * g ) ) + h * ( i - j / k ) + l $ shift 2
+16   $(*ID                                             - d / ( e + f * g ) ) + h * ( i - j / k ) + l $   reduce <brakets> -> ID
+17   $(*                                               - d / ( e + f * g ) ) + h * ( i - j / k ) + l $   reduce <mul> -> <mul> '*' <brakets>
+18   $(                                                - d / ( e + f * g ) ) + h * ( i - j / k ) + l $   reduce <sum> -> <mul>
+19   $(                                                - d / ( e + f * g ) ) + h * ( i - j / k ) + l $   shift 9
+20   $(-                                               d / ( e + f * g ) ) + h * ( i - j / k ) + l $     shift 2
+21   $(-ID                                             / ( e + f * g ) ) + h * ( i - j / k ) + l $       reduce <brakets> -> ID
+22   $(-                                               / ( e + f * g ) ) + h * ( i - j / k ) + l $       reduce <mul> -> <brakets>
+23   $(-                                               / ( e + f * g ) ) + h * ( i - j / k ) + l $       shift 11
+24   $(--                                              ( e + f * g ) ) + h * ( i - j / k ) + l $         shift 3
+25   $(--(                                             e + f * g ) ) + h * ( i - j / k ) + l $           shift 2
+26   $(--(ID                                           + f * g ) ) + h * ( i - j / k ) + l $             reduce <brakets> -> ID
+27   $(--(                                             + f * g ) ) + h * ( i - j / k ) + l $             reduce <mul> -> <brakets>
+28   $(--(                                             + f * g ) ) + h * ( i - j / k ) + l $             reduce <sum> -> <mul>
+29   $(--(                                             + f * g ) ) + h * ( i - j / k ) + l $             shift 8
+30   $(--(+                                            f * g ) ) + h * ( i - j / k ) + l $               shift 2
+31   $(--(+ID                                          * g ) ) + h * ( i - j / k ) + l $                 reduce <brakets> -> ID
+32   $(--(+                                            * g ) ) + h * ( i - j / k ) + l $                 reduce <mul> -> <brakets>
+33   $(--(+                                            * g ) ) + h * ( i - j / k ) + l $                 shift 10
+34   $(--(+*                                           g ) ) + h * ( i - j / k ) + l $                   shift 2
+35   $(--(+*ID                                         ) ) + h * ( i - j / k ) + l $                     reduce <brakets> -> ID
+36   $(--(+*                                           ) ) + h * ( i - j / k ) + l $                     reduce <mul> -> <mul> '*' <brakets>
+37   $(--(+                                            ) ) + h * ( i - j / k ) + l $                     reduce <sum> -> <sum> '+' <mul>
+38   $(--(                                             ) ) + h * ( i - j / k ) + l $                     shift 12
+39   $(--()                                            ) + h * ( i - j / k ) + l $                       reduce <brakets> -> '(' <sum> ')'
+40   $(--                                              ) + h * ( i - j / k ) + l $                       reduce <mul> -> <mul> '/' <brakets>
+41   $(-                                               ) + h * ( i - j / k ) + l $                       reduce <sum> -> <sum> '-' <mul>
+42   $(                                                ) + h * ( i - j / k ) + l $                       shift 12
+43   $()                                               + h * ( i - j / k ) + l $                         reduce <brakets> -> '(' <sum> ')'
+44   $                                                 + h * ( i - j / k ) + l $                         reduce <mul> -> <brakets>
+45   $                                                 + h * ( i - j / k ) + l $                         reduce <sum> -> <mul>
+46   $                                                 + h * ( i - j / k ) + l $                         shift 8
+47   $+                                                h * ( i - j / k ) + l $                           shift 2
+48   $+ID                                              * ( i - j / k ) + l $                             reduce <brakets> -> ID
+49   $+                                                * ( i - j / k ) + l $                             reduce <mul> -> <brakets>
+50   $+                                                * ( i - j / k ) + l $                             shift 10
+51   $+*                                               ( i - j / k ) + l $                               shift 3
+52   $+*(                                              i - j / k ) + l $                                 shift 2
+53   $+*(ID                                            - j / k ) + l $                                   reduce <brakets> -> ID
+54   $+*(                                              - j / k ) + l $                                   reduce <mul> -> <brakets>
+55   $+*(                                              - j / k ) + l $                                   reduce <sum> -> <mul>
+56   $+*(                                              - j / k ) + l $                                   shift 9
+57   $+*(-                                             j / k ) + l $                                     shift 2
+58   $+*(-ID                                           / k ) + l $                                       reduce <brakets> -> ID
+59   $+*(-                                             / k ) + l $                                       reduce <mul> -> <brakets>
+60   $+*(-                                             / k ) + l $                                       shift 11
+61   $+*(--                                            k ) + l $                                         shift 2
+62   $+*(--ID                                          ) + l $                                           reduce <brakets> -> ID
+63   $+*(--                                            ) + l $                                           reduce <mul> -> <mul> '/' <brakets>
+64   $+*(-                                             ) + l $                                           reduce <sum> -> <sum> '-' <mul>
+65   $+*(                                              ) + l $                                           shift 12
+66   $+*()                                             + l $                                             reduce <brakets> -> '(' <sum> ')'
+67   $+*                                               + l $                                             reduce <mul> -> <mul> '*' <brakets>
+68   $+                                                + l $                                             reduce <sum> -> <sum> '+' <mul>
+69   $                                                 + l $                                             shift 8
+70   $+                                                l $                                               shift 2
+71   $+ID                                              $                                                 reduce <brakets> -> ID
+72   $+                                                $                                                 reduce <mul> -> <brakets>
+73   $+                                                $                                                 reduce <sum> -> <sum> '+' <mul>
+74   $                                                 $                                                 accept
+------------------------------------------------------------------------------------------------------------------------------------------------------

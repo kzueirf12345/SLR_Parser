@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+#include <ostream>
 #include <string>
 #include <optional>
 
@@ -10,18 +12,21 @@ class Args {
 
 public:
 
-    static Args parse(int argc, char* argv[]);
-           void print_help() const;
+    Args(const int argc, const char* const argv[]);
 
-    inline std::string_view getProgramName() const {return program_name_;}
-    inline std::optional<std::string_view> getInputFile() const {return input_file_;}
-    inline bool getHelp() const {return help_;}
-    inline bool getVerbose() const {return verbose_;}
+    void                            printHelp           (std::ostream& out = std::cout) const;
+
+    std::string_view                getProgramName      ()                              const noexcept;
+    std::optional<std::string>      getInputFilename    ()                              const noexcept;
+    std::optional<std::string>      getOutputFilename   ()                              const noexcept;
+    bool                            getHelp             ()                              const noexcept;
+    bool                            getVerbose          ()                              const noexcept;
 
 private:
 
     std::string program_name_;
-    std::optional<std::string> input_file_ = std::nullopt;
+    std::optional<std::string> input_filename_ = std::nullopt;
+    std::optional<std::string> output_filename_ = std::nullopt;
     bool help_ = false;
     bool verbose_ = false;
 };

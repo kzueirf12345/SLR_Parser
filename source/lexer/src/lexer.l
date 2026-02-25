@@ -16,47 +16,37 @@
 %%
 
 [0-9]+(\.[0-9]+)? { 
-    token_.type = slr::lexer::TokenType::NUMBER;
-    token_.value = std::stod(yytext); 
-    token_.line = yylineno;
+    token_ = {slr::lexer::TokenType::NUMBER, yytext, yylineno};
     return static_cast<int>(slr::lexer::TokenType::NUMBER); 
 }
 
 [a-zA-Z_][a-zA-Z0-9_]* {
-    token_.type = slr::lexer::TokenType::ID;
-    token_.value = std::string(yytext);
-    token_.line = yylineno;
+    token_ = {slr::lexer::TokenType::ID, yytext, yylineno};
     return static_cast<int>(slr::lexer::TokenType::ID);
 }
 
 "+"     { 
-    token_.type = slr::lexer::TokenType::PLUS;
-    token_.line = yylineno;
+    token_ = {slr::lexer::TokenType::PLUS, yytext, yylineno};
     return static_cast<int>(slr::lexer::TokenType::PLUS); 
 }
 "-"     { 
-    token_.type = slr::lexer::TokenType::MINUS;
-    token_.line = yylineno;
+    token_ = {slr::lexer::TokenType::MINUS, yytext, yylineno};
     return static_cast<int>(slr::lexer::TokenType::MINUS); 
 }
 "*"     { 
-    token_.type = slr::lexer::TokenType::MUL;
-    token_.line = yylineno;
+    token_ = {slr::lexer::TokenType::MUL, yytext, yylineno};
     return static_cast<int>(slr::lexer::TokenType::MUL); 
 }
 "/"     { 
-    token_.type = slr::lexer::TokenType::DIV;
-    token_.line = yylineno;
+    token_ = {slr::lexer::TokenType::DIV, yytext, yylineno};
     return static_cast<int>(slr::lexer::TokenType::DIV); 
 }
 "("     { 
-    token_.type = slr::lexer::TokenType::LBRACKET;
-    token_.line = yylineno;
+    token_ = {slr::lexer::TokenType::LBRACKET, yytext, yylineno};
     return static_cast<int>(slr::lexer::TokenType::LBRACKET); 
 }
 ")"     { 
-    token_.type = slr::lexer::TokenType::RBRACKET;
-    token_.line = yylineno;
+    token_ = {slr::lexer::TokenType::RBRACKET, yytext, yylineno};
     return static_cast<int>(slr::lexer::TokenType::RBRACKET); 
 }
 
@@ -65,14 +55,12 @@
 .       {   
     std::cerr << "Lexical error at line " << yylineno 
         << ": unexpected character '" << yytext << "'" << std::endl;
-    token_.type = slr::lexer::TokenType::UNKNOWN;
-    token_.line = yylineno;
+    token_ = {slr::lexer::TokenType::UNKNOWN, yytext, yylineno};
     return static_cast<int>(slr::lexer::TokenType::UNKNOWN); 
 }
 
 <<EOF>> {
-    token_.type = slr::lexer::TokenType::END_OF_FILE;
-    token_.line = yylineno;
+    token_ = {slr::lexer::TokenType::END_OF_FILE, "$", yylineno};
     return static_cast<int>(slr::lexer::TokenType::END_OF_FILE);
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits>
 #include <vector>
 #include <unordered_map>
 #include <optional>
@@ -20,36 +21,30 @@ enum class ActionType {
 
 struct ParseAction {
     ActionType type;
-    int target;         // SHIFT: state_ind, REDUCE: production_ind
+    size_t target;      // SHIFT: state_ind, REDUCE: production_ind
     std::string rule;   // REDUCE: productions[prodution_ind].name
+
+    constexpr inline static size_t TARGET_POISION = std::numeric_limits<size_t>::max();
     
-    static ParseAction shift(int state) {
-        return {ActionType::SHIFT, state, ""};
-    }
-    static ParseAction reduce(int prod_idx, std::string rule_name) {
-        return {ActionType::REDUCE, prod_idx, std::move(rule_name)};
-    }
-    static ParseAction accept() {
-        return {ActionType::ACCEPT, -1, ""};
-    }
-    static ParseAction error() {
-        return {ActionType::ERROR, -1, ""};
-    }
+    static ParseAction shift    (size_t state)                              noexcept;
+    static ParseAction reduce   (size_t prod_ind, std::string rule_name)    noexcept;
+    static ParseAction accept   ()                                          noexcept;
+    static ParseAction error    ()                                          noexcept;
 };
 
 
 struct Item {
-    size_t prod_index; 
+    size_t prod_ind; 
     size_t dot_pos;
     
-    Item(size_t prod, size_t dot = 0) : prod_index(prod), dot_pos(dot) {}
+    Item(size_t prod_ind, size_t dot = 0) noexcept;
     
     auto operator<=>(const Item& other) const = default;
 };
 
-
 using ItemSet = std::set<Item>;
 using StateVec = std::vector<ItemSet>;
+using StateNum = uint64_t;
 
 class ParsingTable {
 
@@ -57,12 +52,12 @@ public:
 
     ParsingTable(const Grammar& grammar);
     
-    ParseAction getAction(int state, Symbol terminal) const;
-    std::optional<int> getGoto(int state, Symbol non_terminal) const;
+    ParseAction getAction(StateNum state, Symbol terminal) const;
+    std::optional<StateNum> getGoto(StateNum state, Symbol non_terminal) const;
     
-    void print() const;
+    void print(std::ostream& out = std::cout) const;
     
-    int getStateCount() const { return static_cast<int>(states_.size()); }
+    size_t getStateCount() const { return states_.size(); }
     
 private:
 
@@ -71,7 +66,9 @@ private:
     StateVec states_;
     
     std::vector<std::unordered_map<Symbol, ParseAction>> action_table_;
-    std::vector<std::unordered_map<Symbol, int>> goto_table_;
+    std::vector<std::unordered_map<Symbol, StateNum>> goto_table_;
+
+private:
     
     ItemSet closure(const ItemSet& items);
     ItemSet gotoState(const ItemSet& items, Symbol symbol);

@@ -1,68 +1,61 @@
 #include <cstdlib>
-#include <fstream>
+#include <exception>
 #include <iostream>
 #include <cassert>
 
-#include "lexer/tokens.hpp"
-#include "lexer/Lexer.hpp"
+#include "args/IOManager.hpp"
 #include "args/Args.hpp"
 #include "syntaxer/Grammar.hpp"
 #include "syntaxer/ParsingTable.hpp"
 #include "syntaxer/Syntaxer.hpp"
 #include "utils/concole.hpp"
+#include "lexer/Lexer.hpp"
 
-int main(int argc, char* argv[]) {
-    slr::args::Args args = slr::args::Args::parse(argc, argv);
+int main(int argc, char* argv[]) try {
+    const slr::args::Args args(argc, argv);
 
     if (args.getHelp()) {
-        args.print_help();
+        args.printHelp();
         return EXIT_SUCCESS;
     }
 
-    std::istream* input_stream = nullptr;
-    std::ifstream input_fstream;
+    slr::args::IOManger iomanager(args.getInputFilename(), args.getOutputFilename());
 
-    if (args.getInputFile().has_value()) {
-        const std::string input_filename(args.getInputFile().value());
-        input_fstream.open(input_filename);
-
-        if (!input_fstream.is_open()) {
-            std::cerr << "Error: Cannot open file '" << input_filename << "'\n";
-            return EXIT_FAILURE;
-        }
-        input_stream = &input_fstream;
-
-        if (args.getVerbose()) {
-            std::cout << "Reading from file: " << input_filename << "\n";
-        }
-    }
-    else {
-        input_stream = &std::cin;
-        if (args.getVerbose()) {
-            std::cout << "Reading from stdin (enter expression, then Ctrl+D)\n";
-        }
+    if (args.getVerbose()) {
+        std::cout << "Input: " 
+            << (iomanager.getInputFilename().has_value() 
+            ? iomanager.getInputFilename().value() 
+            : "concole (fot end use Ctrl+D)")
+            << "\n";
+        std::cout << "Output: " 
+            << (iomanager.getOutputFilename().has_value() 
+            ? iomanager.getOutputFilename().value() 
+            : "concole")
+            << "\n";
     }
 
-    slr::lexer::Lexer lexer(input_stream);
     slr::syntaxer::Grammar grammar;
     slr::syntaxer::ParsingTable parsing_table(grammar);
 
     if (args.getVerbose()) {
-        grammar.print();
+        grammar.print(iomanager.getOutputFile());
+        parsing_table.print(iomanager.getOutputFile());
     }
 
-    if (args.getVerbose()) {
-        parsing_table.print();
-    }
+    slr::lexer::Lexer lexer(&iomanager.getInputFile(), &iomanager.getOutputFile());
 
     const auto& tokens = lexer.parse();
+
+    if (args.getVerbose()) {
+        lexer.print(iomanager.getOutputFile());
+    }
 
     slr::syntaxer::Syntaxer syntaxer(grammar, parsing_table);
 
     const auto& parse_result = syntaxer.parse(tokens);
 
     if (args.getVerbose()) {
-        syntaxer.print(parse_result);
+        syntaxer.print(parse_result, iomanager.getOutputFile());
     }
 
     if (args.getVerbose()) {
@@ -70,4 +63,12 @@ int main(int argc, char* argv[]) {
     }
 
     return EXIT_SUCCESS;
+}
+catch(const std::exception& e) {
+    std::cerr << RED_FORMAT << "EXCEPTION!!!\n" << e.what() << NORMAL_FORMAT << "\n"; 
+    return EXIT_FAILURE;
+}
+catch(...) {
+    std::cerr << RED_FORMAT << "SOMETHING WENT WRONG!!!\n"<< NORMAL_FORMAT << "\n";
+    return EXIT_FAILURE;
 }

@@ -37,19 +37,19 @@ void Grammar::buildFollowSets() {
         for (const auto& prod : productions_) {
             const auto& body = prod.body;
             
-            for (size_t i = 0; i < body.size(); ++i) {
-                if (isTerminal(body[i])) {
+            for (size_t sym_ind = 0; sym_ind < body.size(); ++sym_ind) {
+                if (isTerminal(body[sym_ind])) {
                     continue;
                 }
                 
                 std::vector<Symbol> to_add;
                 
-                if (i == body.size() - 1) {
+                if (sym_ind == body.size() - 1) {
                     const auto& follow_head = follow_sets_[static_cast<size_t>(prod.head)];
                     to_add.insert(to_add.end(), follow_head.begin(), follow_head.end());
                 }
                 else {
-                    Symbol next_sym = body[i + 1];
+                    Symbol next_sym = body[sym_ind + 1];
                     
                     if (isTerminal(next_sym)) {
                         to_add.push_back(next_sym);
@@ -60,7 +60,7 @@ void Grammar::buildFollowSets() {
                     }
                 }
 
-                auto& follow_current = follow_sets_[static_cast<size_t>(body[i])];
+                auto& follow_current = follow_sets_[static_cast<size_t>(body[sym_ind])];
                 const size_t prev_size = follow_current.size(); 
 
                 follow_current.insert(to_add.begin(), to_add.end());
@@ -87,8 +87,8 @@ void Grammar::buildFirstSets() {
             auto& first_head = first_sets_[static_cast<size_t>(prod.head)];
             
             const auto& first_body_set = first_sets_[static_cast<size_t>(first_body)];
-            for (Symbol s : first_body_set) {
-                if (first_head.insert(s).second) {
+            for (Symbol first_body_sym : first_body_set) {
+                if (first_head.insert(first_body_sym).second) {
                     changed = true;
                 }
             }
@@ -96,36 +96,44 @@ void Grammar::buildFirstSets() {
     }
 }
 
-void Grammar::print() const {
-    std::cout << "\n=== Grammar Info ===\n";
-    std::cout << "\n=== FIRST Sets ===\n";
-    for (int i = static_cast<int>(Symbol::NT_START); 
-            i < static_cast<int>(Symbol::COUNT); 
-            ++i
-    ) {
-        Symbol s = static_cast<Symbol>(i);
-        std::cout << "FIRST(" << Grammar::symbolName(s) << ") = { ";
-        for (auto sym : getFirst(s)) {
-            std::cout << Grammar::symbolName(sym) << " ";
+void Grammar::print(std::ostream& out) const {
+    out << "\n=== Grammar Info ===\n";
+    out << "\n=== FIRST Sets ===\n";
+    for (int i = 0; i < static_cast<int>(Symbol::COUNT); ++i) {
+        Symbol sym = static_cast<Symbol>(i);
+
+        out << "FIRST(" << Grammar::getSymbolStr(sym) << ") = { ";
+        for (auto sym : getFirst(sym)) {
+            out << "'"<< Grammar::getSymbolStr(sym) << "' ";
         }
-        std::cout << "}\n";
+        out << "}\n";
         
     }
     
-    std::cout << "\n=== FOLLOW Sets ===\n";
-    for (int i = static_cast<int>(Symbol::NT_START); 
-            i < static_cast<int>(Symbol::COUNT); 
-            ++i
-    ) {
-        Symbol s = static_cast<Symbol>(i);
-        std::cout << "FOLLOW(" << Grammar::symbolName(s) << ") = { ";
-        for (auto sym : getFollow(s)) {
-            std::cout << Grammar::symbolName(sym) << " ";
+    out << "\n=== FOLLOW Sets ===\n";
+    for (int i = 0; i < static_cast<int>(Symbol::COUNT); ++i) {
+        Symbol sym = static_cast<Symbol>(i);
+
+        out << "FOLLOW(" << Grammar::getSymbolStr(sym) << ") = { ";
+        for (auto follow_sym : getFollow(sym)) {
+            out << Grammar::getSymbolStr(follow_sym) << " ";
         }
-        std::cout << "}\n";
+        out << "}\n";
         
     }
-    std::cout << "\n";
+    out << "\n";
+}
+
+const std::vector<Production>&  Grammar::getProductions() const noexcept { 
+    return productions_; 
+}
+
+size_t Grammar::getProductionCount() const noexcept { 
+    return productions_.size(); 
+}
+
+std::string Grammar::productionString(size_t prod_ind) const noexcept { 
+    return productions_[prod_ind].name; 
 }
 
 const std::unordered_set<Symbol>& Grammar::getFollow(Symbol non_terminal) const {
@@ -140,7 +148,7 @@ bool Grammar::isNonTerminal(Symbol s) {
 }
 
 bool Grammar::isTerminal(Symbol s) {
-    return s >= Symbol::END_OF_FILE && s < static_cast<Symbol>(lexer::TokenType::UNKNOWN);
+    return s > Symbol::UNKNOWN && s < static_cast<Symbol>(lexer::TokenType::COUNT);
 }
 
 Symbol Grammar::fromTokenType(lexer::TokenType token_type) {
@@ -151,28 +159,53 @@ Symbol Grammar::fromTokenType(lexer::TokenType token_type) {
 }
 
 
-#define CASE_RET_STR(type, ret) case Symbol::type: { return ret; }
-std::string Grammar::symbolName(Symbol s) {
+#define CASE_RET_STR(type) case Symbol::type: { return #type; }
+std::string Grammar::getSymbolStr(Symbol s) {
     switch(s) {
-        CASE_RET_STR(END_OF_FILE, "EOF")
-        CASE_RET_STR(NUMBER, "NUM")
-        CASE_RET_STR(ID, "ID")
-        CASE_RET_STR(PLUS, "+")
-        CASE_RET_STR(MINUS, "-")
-        CASE_RET_STR(MUL, "*")
-        CASE_RET_STR(DIV, "/")
-        CASE_RET_STR(LBRACKET, "(")
-        CASE_RET_STR(RBRACKET, ")")
-        CASE_RET_STR(NT_START, "NT_ST")
-        CASE_RET_STR(NT_SUM, "NT_SUM")
-        CASE_RET_STR(NT_MUL, "NT_MUL")
-        CASE_RET_STR(NT_BRAKETS, "NT_BR")
+        CASE_RET_STR(END_OF_FILE)
+        CASE_RET_STR(NUMBER)
+        CASE_RET_STR(ID)
+        CASE_RET_STR(PLUS)
+        CASE_RET_STR(MINUS)
+        CASE_RET_STR(MUL)
+        CASE_RET_STR(DIV)
+        CASE_RET_STR(LBRACKET)
+        CASE_RET_STR(RBRACKET)
+        CASE_RET_STR(NT_START)
+        CASE_RET_STR(NT_SUM)
+        CASE_RET_STR(NT_MUL)
+        CASE_RET_STR(NT_BRAKETS)
         default: {
             return "UNKNOWN";
         }
     }
     return "UNKNOWN";
 }
+#undef CASE_RET_STR
+
+#define CASE_RET_STR(type, ret) case Symbol::type: { return ret; }
+std::string Grammar::getPrettySymbolStr(Symbol s) {
+    switch(s) {
+        CASE_RET_STR(END_OF_FILE, "$")
+        CASE_RET_STR(NUMBER, "NUM")
+        CASE_RET_STR(ID, "ID")
+        CASE_RET_STR(PLUS, "+")
+        CASE_RET_STR(MINUS, "-")
+        CASE_RET_STR(MUL, "*")
+        CASE_RET_STR(DIV, "-")
+        CASE_RET_STR(LBRACKET, "(")
+        CASE_RET_STR(RBRACKET, ")")
+        CASE_RET_STR(NT_START, "<start>")
+        CASE_RET_STR(NT_SUM, "<sum>")
+        CASE_RET_STR(NT_MUL, "<mul>")
+        CASE_RET_STR(NT_BRAKETS, "<brackets>")
+        default: {
+            return "UNKNOWN";
+        }
+    }
+    return "UNKNOWN";
+}
+#undef CASE_RET_STR
 
 }
 }

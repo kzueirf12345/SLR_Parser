@@ -2,7 +2,6 @@
 
 #include <concepts>
 #include <string>
-#include <variant>
 
 namespace slr {
 namespace lexer {
@@ -11,7 +10,8 @@ template<typename T>
 concept TokenVal = std::convertible_to<T, double> || std::convertible_to<T, std::string>;
 
 enum class TokenType: int {
-    END_OF_FILE = 0,
+    UNKNOWN = 0,
+    END_OF_FILE,
     NUMBER,
     ID,
     PLUS,
@@ -20,14 +20,22 @@ enum class TokenType: int {
     DIV,
     LBRACKET,
     RBRACKET,
-    UNKNOWN,
     COUNT
 };
 
 struct Token {
+
     TokenType type = TokenType::UNKNOWN;
-    std::variant<std::string, double> value = 0.;
+    std::string value = "";
     int line = -1;
+
+    Token() = default;
+
+    Token(TokenType type, std::string value, int line)
+        :   type(type)
+        ,   value(value)
+        ,   line(line)
+    {}
 };
 
 }

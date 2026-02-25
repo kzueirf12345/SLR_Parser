@@ -1,7 +1,8 @@
 #pragma once
 
+#include <iostream>
+#include <utility>
 #include <vector>
-#include <stack>
 #include <string>
 
 #include "syntaxer/Grammar.hpp"
@@ -28,16 +29,15 @@ public:
     
     ParseResult parse(const std::vector<lexer::Token>& tokens);
     
-    void print(const ParseResult& result) const;
+    void print(const ParseResult& result, std::ostream& out = std::cout) const;
     
 private:
     const Grammar& grammar_;
     const ParsingTable& table_;
     
     std::vector<int> state_stack_;
-    std::vector<Symbol> symbol_stack_;
+    std::vector<std::pair<Symbol, std::string>> symbol_stack_;
     
-    // Вспомогательные функции
     std::string stackToString() const;
     std::string inputToString(const std::vector<lexer::Token>& tokens, size_t pos) const;
     std::string actionToString(const ParseAction& action) const;

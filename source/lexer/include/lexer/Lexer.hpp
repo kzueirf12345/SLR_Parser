@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
 
 #if !defined(yyFlexLexerOnce)
@@ -17,9 +18,11 @@ public:
 
     Lexer(std::istream* in = nullptr, std::ostream* out = nullptr);
     
-    static std::string getTokenStr(const Token& token);
+    static std::string getTokenTypeStr(TokenType token);
 
     const std::vector<Token>& parse();
+
+    void print(std::ostream& out = std::cout) const;
 
 private:
 
@@ -32,6 +35,7 @@ private:
     Token token_;
 
     std::vector<Token> tokens_;
+
 };
 
 }

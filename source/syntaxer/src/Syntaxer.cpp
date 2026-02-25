@@ -2,11 +2,10 @@
 
 #include <iomanip>
 #include <sstream>
-#include <algorithm>
 #include <string>
 
+#include "syntaxer/Grammar.hpp"
 #include "syntaxer/ParsingTable.hpp"
-#include "lexer/Lexer.hpp"
 
 namespace slr {
 namespace syntaxer {
@@ -23,7 +22,7 @@ ParseResult Syntaxer::parse(const std::vector<lexer::Token>& tokens) {
     symbol_stack_.clear();
     
     state_stack_.push_back(0);
-    symbol_stack_.push_back(Symbol::END_OF_FILE);
+    symbol_stack_.push_back({Symbol::END_OF_FILE, tokens.back().value});
     
     size_t token_pos = 0;
     
@@ -63,7 +62,7 @@ ParseResult Syntaxer::parse(const std::vector<lexer::Token>& tokens) {
             case ActionType::ERROR: {
                 std::ostringstream oss;
                 oss << "Syntax error in line " << tokens[token_pos].line << ", token is " 
-                    << lexer::Lexer::getTokenStr(tokens[token_pos])
+                    << tokens[token_pos].value
                     << "(state " << current_state << ")";
                 result.error_message = oss.str();
                 return result;
@@ -82,7 +81,7 @@ bool Syntaxer::doShift(
 ) {
     Symbol sym = Grammar::fromTokenType(tokens[token_pos].type);
     
-    symbol_stack_.push_back(sym);
+    symbol_stack_.push_back({sym, tokens[token_pos].value});
     state_stack_.push_back(action.target);
     ++token_pos;
     
@@ -98,7 +97,7 @@ bool Syntaxer::doReduce(const ParseAction& action) {
         symbol_stack_.pop_back();
     }
     
-    symbol_stack_.push_back(prod.head);
+    symbol_stack_.push_back({prod.head, {}});
     
     int prev_state = state_stack_.back();
     auto goto_state = table_.getGoto(prev_state, prod.head);
@@ -116,7 +115,11 @@ std::string Syntaxer::stackToString() const {
     std::ostringstream oss;
     
     for (size_t i = 0; i < symbol_stack_.size(); ++i) {
-        oss << Grammar::symbolName(symbol_stack_[i]) << "";
+        auto sym = symbol_stack_[i];
+        oss << (Grammar::isTerminal(sym.first) 
+            ?   Grammar::getPrettySymbolStr(sym.first) 
+            :   sym.second) 
+            <<  "";
     }
     
     return oss.str();
@@ -126,7 +129,7 @@ std::string Syntaxer::inputToString(const std::vector<lexer::Token>& tokens, siz
     std::ostringstream oss;
     
     for (size_t i = pos; i < tokens.size(); ++i) {
-        oss << lexer::Lexer::getTokenStr(tokens[i]) << " ";
+        oss << tokens[i].value << " ";
     }
     
     return oss.str();
@@ -158,32 +161,34 @@ std::string Syntaxer::actionToString(const ParseAction& action) const {
     return oss.str();
 }
 
-void Syntaxer::print(const ParseResult& result) const {
-
-    std::cout << "\n=== SLR Parse result ===\n";
-    std::cout << "Result: ";
+void Syntaxer::print(const ParseResult& result, std::ostream& out) const {
+    out << "\n===Syntaxer result===\n";
+    out << "Result: ";
 
     if (!result.error_message.has_value()) {
-        std::cout << "SUCCESSFULLY\n\n";
+        out << "SUCCESSFULLY\n\n";
     }
     else {
-        std::cout << "ERROR\n" << "Message: " << *result.error_message << "\n";
+        out << "ERROR\n" << "Message: " << *result.error_message << "\n";
     }
 
-    std::cout << std::left 
-              << std::setw(50) << "STACK" 
-              << std::setw(50) << "INPUT" 
-              << "ACTION" << std::endl;
-    std::cout << std::string(70, '-') << std::endl;
+    out << std::left 
+        << std::setw(5)  << "Ind"
+        << std::setw(50) << "STACK" 
+        << std::setw(50) << "INPUT" 
+        << "ACTION" << "\n"
+        << std::string(150, '-') << "\n";
     
-    for (const auto& step : result.steps) {
-        std::cout << std::left 
-                  << std::setw(50) << step.stack 
-                  << std::setw(50) << step.input 
-                  << step.action << std::endl;
+    for (size_t step_ind = 0; step_ind < result.steps.size(); ++step_ind) {
+        const auto& step = result.steps[step_ind];
+        out << std::left 
+            << std::setw(5)  << step_ind
+            << std::setw(50) << step.stack 
+            << std::setw(50) << step.input 
+            << step.action << "\n";
     }
     
-    std::cout << std::string(70, '-') << std::endl;
+    out << std::string(150, '-') << "\n";
 }
 
 }

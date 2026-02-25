@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -11,7 +12,8 @@ namespace syntaxer {
 
 enum class Symbol : int {
     // TokenType + offset
-    END_OF_FILE = 0,
+    UNKNOWN = 0,
+    END_OF_FILE,
     NUMBER,
     ID,
     PLUS,
@@ -20,7 +22,6 @@ enum class Symbol : int {
     DIV,
     LBRACKET,
     RBRACKET,
-    UNKNOWN,
     
     // Нетерминалы
     NT_START,
@@ -42,21 +43,22 @@ class Grammar {
 public:
     Grammar();
     
-    const std::vector<Production>&  getProductions() const { return productions_; }
-    size_t                          getProductionCount() const { return productions_.size(); }
-    std::string                     productionString(size_t prod_ind) const { return productions_[prod_ind].name; }
+    const std::vector<Production>&  getProductions()                    const noexcept;
+    size_t                          getProductionCount()                const noexcept;
+    std::string                     productionString(size_t prod_ind)   const noexcept;
     
     const std::unordered_set<Symbol>& getFollow(Symbol non_terminal) const;
     const std::unordered_set<Symbol>& getFirst(Symbol symbol) const;
 
-    void print() const;
+    void print(std::ostream& out = std::cout) const;
     
     static bool isNonTerminal(Symbol s);
     static bool isTerminal(Symbol s);
     
     static Symbol fromTokenType(lexer::TokenType token_type);
     
-    static std::string symbolName(Symbol s);
+    static std::string getSymbolStr         (Symbol s);
+    static std::string getPrettySymbolStr   (Symbol s);
 
 private:
     std::vector<Production> productions_;

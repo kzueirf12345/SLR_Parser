@@ -1,6 +1,7 @@
 #include "lexer/Lexer.hpp"
 
 #include "lexer/tokens.hpp"
+#include <iomanip>
 
 namespace slr {
 namespace lexer {
@@ -25,18 +26,32 @@ const std::vector<Token>& Lexer::parse() {
     return tokens_;
 }
 
-#define CASE_RET_STR(type, ret) case TokenType::type: { return ret; }
-std::string Lexer::getTokenStr(const Token& token) {
-    switch (token.type) {
-        CASE_RET_STR(END_OF_FILE, "EOF")
-        CASE_RET_STR(PLUS, "+")
-        CASE_RET_STR(MINUS, "-")
-        CASE_RET_STR(MUL, "*")
-        CASE_RET_STR(DIV, "/")
-        CASE_RET_STR(LBRACKET, "(")
-        CASE_RET_STR(RBRACKET, ")")
-        case slr::lexer::TokenType::NUMBER: return std::to_string(std::get<double>(token.value));
-        case slr::lexer::TokenType::ID: return std::get<std::string>(token.value);
+void Lexer::print(std::ostream& out) const {
+    out << "\n=== Lexer ===\n";
+    out << std::left << std::setw(30) << "TYPE" << "VALUE" << "\n";
+    out << std::string(30, '-') << "\n";
+    
+    for (const auto& token : tokens_) {
+        out << std::left << std::setw(30) 
+            << Lexer::getTokenTypeStr(token.type) << token.value << "\n";
+    }
+    
+    out << std::string(30, '-') << "\n";
+    out << "Total tokens: " << tokens_.size() << "\n";
+}
+
+#define CASE_RET_STR(type) case TokenType::type: { return #type; }
+std::string Lexer::getTokenTypeStr(TokenType tt) {
+    switch (tt) {
+        CASE_RET_STR(END_OF_FILE)
+        CASE_RET_STR(PLUS)
+        CASE_RET_STR(MINUS)
+        CASE_RET_STR(MUL)
+        CASE_RET_STR(DIV)
+        CASE_RET_STR(LBRACKET)
+        CASE_RET_STR(RBRACKET)
+        CASE_RET_STR(ID)
+        CASE_RET_STR(NUMBER)
         default: {
             return "UNKNOWN";
         }
