@@ -1,8 +1,10 @@
 #include "syntaxer/Grammar.hpp"
 
 #include "lexer/tokens.hpp"
+#include <iostream>
 
-namespace slr::syntaxer {
+namespace slr {
+namespace syntaxer {
 
 Grammar::Grammar() {
     
@@ -94,6 +96,38 @@ void Grammar::buildFirstSets() {
     }
 }
 
+void Grammar::print() const {
+    std::cout << "\n=== Grammar Info ===\n";
+    std::cout << "\n=== FIRST Sets ===\n";
+    for (int i = static_cast<int>(Symbol::NT_START); 
+            i < static_cast<int>(Symbol::COUNT); 
+            ++i
+    ) {
+        Symbol s = static_cast<Symbol>(i);
+        std::cout << "FIRST(" << Grammar::symbolName(s) << ") = { ";
+        for (auto sym : getFirst(s)) {
+            std::cout << Grammar::symbolName(sym) << " ";
+        }
+        std::cout << "}\n";
+        
+    }
+    
+    std::cout << "\n=== FOLLOW Sets ===\n";
+    for (int i = static_cast<int>(Symbol::NT_START); 
+            i < static_cast<int>(Symbol::COUNT); 
+            ++i
+    ) {
+        Symbol s = static_cast<Symbol>(i);
+        std::cout << "FOLLOW(" << Grammar::symbolName(s) << ") = { ";
+        for (auto sym : getFollow(s)) {
+            std::cout << Grammar::symbolName(sym) << " ";
+        }
+        std::cout << "}\n";
+        
+    }
+    std::cout << "\n";
+}
+
 const std::unordered_set<Symbol>& Grammar::getFollow(Symbol non_terminal) const {
     return follow_sets_[static_cast<size_t>(non_terminal)];
 }
@@ -106,7 +140,7 @@ bool Grammar::isNonTerminal(Symbol s) {
 }
 
 bool Grammar::isTerminal(Symbol s) {
-    return s >= Symbol::END_OF_FILE && s < static_cast<Symbol>(slr::lexer::TokenType::COUNT);
+    return s >= Symbol::END_OF_FILE && s < static_cast<Symbol>(lexer::TokenType::UNKNOWN);
 }
 
 Symbol Grammar::fromTokenType(lexer::TokenType token_type) {
@@ -129,10 +163,10 @@ std::string Grammar::symbolName(Symbol s) {
         CASE_RET_STR(DIV, "/")
         CASE_RET_STR(LBRACKET, "(")
         CASE_RET_STR(RBRACKET, ")")
-        CASE_RET_STR(NT_START, "NT_START")
+        CASE_RET_STR(NT_START, "NT_ST")
         CASE_RET_STR(NT_SUM, "NT_SUM")
         CASE_RET_STR(NT_MUL, "NT_MUL")
-        CASE_RET_STR(NT_BRAKETS, "NT_BRAKETS")
+        CASE_RET_STR(NT_BRAKETS, "NT_BR")
         default: {
             return "UNKNOWN";
         }
@@ -140,4 +174,5 @@ std::string Grammar::symbolName(Symbol s) {
     return "UNKNOWN";
 }
 
-} // namespace slr::parser
+}
+}

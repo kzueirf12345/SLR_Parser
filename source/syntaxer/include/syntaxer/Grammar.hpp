@@ -48,6 +48,8 @@ public:
     
     const std::unordered_set<Symbol>& getFollow(Symbol non_terminal) const;
     const std::unordered_set<Symbol>& getFirst(Symbol symbol) const;
+
+    void print() const;
     
     static bool isNonTerminal(Symbol s);
     static bool isTerminal(Symbol s);

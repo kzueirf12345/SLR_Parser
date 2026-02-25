@@ -1,32 +1,37 @@
 #pragma once
 
-#include <concepts>
-#include <variant>
+#include <vector>
+
 #if !defined(yyFlexLexerOnce)
 #include <FlexLexer.h>
 #endif
 
+#include "lexer/tokens.hpp"
+
 namespace slr {
 namespace lexer {
-
-template<typename T>
-concept TokenVal = std::convertible_to<T, double> || std::convertible_to<T, std::string>;
 
 class Lexer : public yyFlexLexer {
 
 public:
 
-    inline Lexer(std::istream* in = nullptr, std::ostream* out = nullptr) 
-        : yyFlexLexer(in, out), last_value_(0.0) {}
+    Lexer(std::istream* in = nullptr, std::ostream* out = nullptr);
     
-    virtual int yylex() override;
-    
-    template <TokenVal T>
-    inline T get_token_value() const { return std::get<T>(last_value_); }
+    static std::string getTokenStr(const Token& token);
+
+    const std::vector<Token>& parse();
 
 private:
 
-    std::variant<double, std::string> last_value_;
+    const Token& getToken();
+
+    virtual int yylex() override;
+
+private:
+
+    Token token_;
+
+    std::vector<Token> tokens_;
 };
 
 }

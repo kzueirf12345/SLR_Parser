@@ -1,5 +1,7 @@
 add_library(syntaxer STATIC
     src/Grammar.cpp
+    src/ParsingTable.cpp
+    src/Syntaxer.cpp
 )
 
 target_include_directories(syntaxer
@@ -17,6 +19,7 @@ endif()
 
 target_link_libraries(syntaxer PRIVATE 
     lexer
+    utils
 )
 
 set_target_properties(syntaxer PROPERTIES

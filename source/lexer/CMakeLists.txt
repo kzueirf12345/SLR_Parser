@@ -1,4 +1,6 @@
-add_library(lexer STATIC)
+add_library(lexer STATIC
+    src/Lexer.cpp
+)
 
 target_include_directories(lexer
     PUBLIC
